@@ -31,7 +31,7 @@ impl ProbabilityDistributionTables {
 }
 
 #[derive(Debug)]
-pub struct CipherTable([[f64; 20]; 20]);
+pub struct CipherTable([[u32; 20]; 20]);
 
 impl CipherTable {
     pub fn new(path: &Path) -> Self {
@@ -40,7 +40,7 @@ impl CipherTable {
             .from_path(path)
             .unwrap();
 
-        let row_iter = reader.into_deserialize::<[f64; 20]>();
+        let row_iter = reader.into_deserialize::<[u32; 20]>();
 
         Self(
             row_iter
@@ -54,7 +54,7 @@ impl CipherTable {
 }
 
 impl Deref for CipherTable {
-    type Target = [[f64; 20]; 20];
+    type Target = [[u32; 20]; 20];
 
     fn deref(&self) -> &Self::Target {
         &self.0
