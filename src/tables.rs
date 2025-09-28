@@ -51,6 +51,11 @@ impl CipherTable {
                 .unwrap(),
         )
     }
+
+    #[inline]
+    pub fn get_ciphertext(&self, m: u32, k: u32) -> u32 {
+        self.0[k as usize][m as usize]
+    }
 }
 
 impl Deref for CipherTable {
