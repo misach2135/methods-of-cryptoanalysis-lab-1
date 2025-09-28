@@ -28,6 +28,14 @@ impl ProbabilityDistributionTables {
     pub fn keys_distribution(&self) -> &[f64; 20] {
         &self.keys_distribution
     }
+
+    pub fn get_probability_of_text(&self, m_index: u32) -> f64 {
+        self.open_texts_distribution[m_index as usize]
+    }
+
+    pub fn get_probability_of_key(&self, key_index: u32) -> f64 {
+        self.keys_distribution[key_index as usize]
+    }
 }
 
 #[derive(Debug)]
