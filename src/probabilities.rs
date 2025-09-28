@@ -21,3 +21,17 @@ pub fn get_ciphertext_probabilities(
 
     (ciphertexts_probabilities, m_and_c_probabilities)
 }
+
+pub fn get_m_if_c_probabilities(
+    m_and_c_probabilities: &[[f64; 20]; 20],
+    c_probabilities: &[f64; 20],
+) -> [[f64; 20]; 20] {
+    let mut m_if_c_probabilities = [[0f64; 20]; 20];
+    for (m_id, row) in m_and_c_probabilities.iter().enumerate() {
+        for (c_id, m_and_c_prob) in row.iter().enumerate() {
+            m_if_c_probabilities[m_id][c_id] = m_and_c_prob / c_probabilities[c_id];
+        }
+    }
+
+    m_if_c_probabilities
+}
