@@ -1,16 +1,18 @@
 use std::path::Path;
 
-use crate::{
-    probabilities::{get_ciphertext_probabilities, get_m_if_c_probabilities},
-    tables::{CipherTable, ProbabilityDistributionTables},
-    util::Matrix,
-};
+use crate::lab::LabContext;
 
-mod probabilities;
-mod tables;
+mod lab;
 mod util;
 
 fn main() {
-    let ciphertable = CipherTable::new(Path::new("assets/table_04.csv"));
-    let distribution = ProbabilityDistributionTables::new(Path::new("assets/prob_04.csv"));
+    let context = LabContext::load(
+        Path::new("assets/prob_04.csv"),
+        Path::new("assets/table_04.csv"),
+    );
+
+    let (ciphertext_distribution, c_and_m_distribution) = context.calc_ciphertext_probabilities();
+
+    println!("P(C):\n{ciphertext_distribution}");
+    println!("P(C, M):\n{c_and_m_distribution}");
 }

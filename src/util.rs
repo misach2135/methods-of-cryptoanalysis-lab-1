@@ -1,5 +1,10 @@
 use core::fmt;
-use std::{fmt::Display, ops::Deref};
+use std::{
+    fmt::{Debug, Display},
+    ops::{Deref, Index},
+};
+
+use anyhow::bail;
 
 #[derive(Debug)]
 pub struct Matrix<T, const R: usize, const C: usize>([[T; C]; R]);
@@ -10,6 +15,39 @@ where
 {
     pub fn new() -> Self {
         Self([[T::default(); C]; R])
+    }
+}
+
+impl<T, const R: usize, const C: usize> TryFrom<Vec<[T; C]>> for Matrix<T, R, C>
+where
+    T: Debug,
+{
+    type Error = anyhow::Error;
+
+    fn try_from(value: Vec<[T; C]>) -> Result<Self, Self::Error> {
+        if value.len() != R {
+            bail!("Vector of rows cannot be converted to static Matrix as its rows count mismatch")
+        }
+
+        let temp: [[T; C]; R] = value.try_into().unwrap();
+
+        Ok(Self(temp))
+    }
+}
+
+impl<T, const R: usize, const C: usize> Index<(usize, usize)> for Matrix<T, R, C> {
+    type Output = T;
+
+    fn index(&self, index: (usize, usize)) -> &Self::Output {
+        &self.0[index.0][index.1]
+    }
+}
+
+impl<T, const C: usize> Index<usize> for Matrix<T, 1, C> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[0][index]
     }
 }
 
