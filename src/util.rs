@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{
     fmt::{Debug, Display},
-    ops::{Deref, Index},
+    ops::{Add, Deref, Index},
 };
 
 use anyhow::bail;
@@ -11,9 +11,35 @@ pub struct Matrix<T, const R: usize, const C: usize>([[T; C]; R]);
 
 impl<T, const R: usize, const C: usize> Matrix<T, R, C>
 where
+    T: Clone + Copy,
+{
+    pub fn row_sum<S>(&self, row: usize) -> S
+    where
+        T: Into<S>,
+        S: Default + Add<Output = S>,
+    {
+        self.0[row]
+            .iter()
+            .fold(S::default(), |acc, x| acc + x.clone().into())
+    }
+
+    pub fn column_sum<S>(&self, column: usize) -> S
+    where
+        T: Into<S>,
+        S: Default + Add<Output = S>,
+    {
+        self.0
+            .iter()
+            .map(|x| x[column])
+            .fold(S::default(), |acc, x| acc + x.clone().into())
+    }
+}
+
+impl<T, const R: usize, const C: usize> Default for Matrix<T, R, C>
+where
     T: Default + Clone + Copy,
 {
-    pub fn new() -> Self {
+    fn default() -> Self {
         Self([[T::default(); C]; R])
     }
 }
