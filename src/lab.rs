@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Deref, path::Path};
+use std::{fmt::Display, ops::Deref, path::Path, u32};
 
 use crate::util::Matrix;
 
@@ -47,11 +47,11 @@ impl LabContext {
         context
     }
 
-    pub fn get_union_probability_of_m_and_k(&self, m_id: u32, k_id: u32) -> f64 {
+    fn get_union_probability_of_m_and_k(&self, m_id: u32, k_id: u32) -> f64 {
         self.messages_distribution[m_id as usize] * self.keys_distribution[k_id as usize]
     }
 
-    pub fn calc_ciphertext_probabilities(&mut self) {
+    fn calc_ciphertext_probabilities(&mut self) {
         let mut ciphertexts_probabilities = [0f64; 20];
         let mut m_and_c_probabilities = [[0f64; 20]; 20];
 
@@ -69,7 +69,7 @@ impl LabContext {
         self.messages_and_ciphertexts_probabilities = Some(m_and_c_probabilities.into());
     }
 
-    pub fn calc_m_if_c_probabilities(&mut self) {
+    fn calc_m_if_c_probabilities(&mut self) {
         if let (Some(ciphertext_probabilites), Some(messages_and_ciphertexts_probabilities)) = (
             &self.ciphertext_probabilites,
             &self.messages_and_ciphertexts_probabilities,
@@ -83,6 +83,23 @@ impl LabContext {
 
             self.messages_if_ciphertexts_probabilities = Some(m_if_c_probabilities.into());
         }
+    }
+
+    pub fn deterministic_decision(&self, ciphertext: u32) -> u32 {
+        if let Some(ref messages_if_ciphertexts_probabilities) =
+            self.messages_if_ciphertexts_probabilities
+        {
+            return messages_if_ciphertexts_probabilities
+                .deref()
+                .iter()
+                .map(|x| x[ciphertext as usize])
+                .enumerate()
+                .max_by(|a, b| a.1.total_cmp(&b.1))
+                .unwrap()
+                .0 as u32;
+        }
+
+        u32::MAX
     }
 }
 

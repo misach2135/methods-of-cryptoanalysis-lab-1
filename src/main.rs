@@ -11,5 +11,6 @@ fn main() {
         Path::new("assets/table_04.csv"),
     );
 
-    println!("{context}");
+    println!("{}", context);
+    println!("{}", context.deterministic_decision(2));
 }

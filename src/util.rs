@@ -20,7 +20,7 @@ where
     {
         self.0[row]
             .iter()
-            .fold(S::default(), |acc, x| acc + x.clone().into())
+            .fold(S::default(), |acc, x| acc + (*x).into())
     }
 
     pub fn column_sum<S>(&self, column: usize) -> S
@@ -31,7 +31,7 @@ where
         self.0
             .iter()
             .map(|x| x[column])
-            .fold(S::default(), |acc, x| acc + x.clone().into())
+            .fold(S::default(), |acc, x| acc + x.into())
     }
 }
 
