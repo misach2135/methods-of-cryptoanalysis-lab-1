@@ -101,6 +101,10 @@ impl LabContext {
 
         u32::MAX
     }
+
+    pub fn stochastic_decision(&self, ciphertext: u32) -> u32 {
+        u32::MAX
+    }
 }
 
 impl Display for LabContext {
