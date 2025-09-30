@@ -2,8 +2,6 @@ use std::{fmt::Display, ops::Deref, path::Path, u32};
 
 use crate::util::Matrix;
 
-type Foo<const R: usize, const C: usize> = [[f64; C]; R];
-
 pub struct LabContext {
     cipthertable: Matrix<u32, 20, 20>,
     messages_distribution: Matrix<f64, 1, 20>,
@@ -59,37 +57,52 @@ impl Display for LabContext {
     }
 }
 
-fn calc_ciphertext_probabilities(
-    context: &LabContext,
-) -> (Matrix<f64, 1, 20>, Matrix<f64, 20, 20>) {
-    let mut ciphertexts_probabilities = [0f64; 20];
-    let mut m_and_c_probabilities = [[0f64; 20]; 20];
-
-    for (k_id, row) in context.cipthertable.deref().iter().enumerate() {
-        for (m_id, c_id) in row.iter().enumerate() {
-            let key_and_m_prob = context.get_union_probability_of_m_and_k(m_id as u32, k_id as u32);
-
-            ciphertexts_probabilities[*c_id as usize] += key_and_m_prob;
-            m_and_c_probabilities[m_id][*c_id as usize] += key_and_m_prob;
-        }
-    }
-
-    (
-        ciphertexts_probabilities.into(),
-        m_and_c_probabilities.into(),
-    )
+pub struct EvaluatedProbabilities {
+    context: LabContext,
+    ciphertexts_probabilities: Matrix<f64, 1, 20>,
+    m_and_c_probabilities: Matrix<f64, 20, 20>,
+    m_if_c_probabilities: Matrix<f64, 20, 20>,
 }
 
-fn calc_m_if_c_probabilities(
-    ciphertexts_probabilities: &Matrix<f64, 1, 20>,
-    m_and_c_probabilities: &Matrix<f64, 20, 20>,
-) -> Matrix<f64, 20, 20> {
-    let mut m_if_c_probabilities: [[f64; 20]; 20] = [[0f64; 20]; 20];
-    for (m_id, row) in m_and_c_probabilities.iter().enumerate() {
-        for (c_id, m_and_c_prob) in row.iter().enumerate() {
-            m_if_c_probabilities[m_id][c_id] = m_and_c_prob / ciphertexts_probabilities[c_id];
+impl EvaluatedProbabilities {
+    pub fn eval(context: LabContext) -> Self {
+        let mut ciphertexts_probabilities = [0f64; 20];
+        let mut m_and_c_probabilities = [[0f64; 20]; 20];
+        let mut m_if_c_probabilities: [[f64; 20]; 20] = [[0f64; 20]; 20];
+
+        for (k_id, row) in context.cipthertable.deref().iter().enumerate() {
+            for (m_id, c_id) in row.iter().enumerate() {
+                let key_and_m_prob =
+                    context.get_union_probability_of_m_and_k(m_id as u32, k_id as u32);
+
+                ciphertexts_probabilities[*c_id as usize] += key_and_m_prob;
+                m_and_c_probabilities[m_id][*c_id as usize] += key_and_m_prob;
+            }
+        }
+
+        for (m_id, row) in m_and_c_probabilities.iter().enumerate() {
+            for (c_id, m_and_c_prob) in row.iter().enumerate() {
+                m_if_c_probabilities[m_id][c_id] = m_and_c_prob / ciphertexts_probabilities[c_id];
+            }
+        }
+
+        Self {
+            context,
+            ciphertexts_probabilities: ciphertexts_probabilities.into(),
+            m_and_c_probabilities: m_and_c_probabilities.into(),
+            m_if_c_probabilities: m_if_c_probabilities.into(),
         }
     }
+}
 
-    m_if_c_probabilities.into()
+impl Display for EvaluatedProbabilities {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "Context:\n{}", self.context);
+
+        writeln!(f, "P(C):\n{}", self.ciphertexts_probabilities);
+        writeln!(f, "P(M, C):\n{}", self.m_and_c_probabilities);
+        writeln!(f, "P(M | C):\n{}", self.m_if_c_probabilities);
+
+        Ok(())
+    }
 }

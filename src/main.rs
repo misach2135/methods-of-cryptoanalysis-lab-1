@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::lab::LabContext;
+use crate::lab::{EvaluatedProbabilities, LabContext};
 
 mod lab;
 mod util;
@@ -11,6 +11,7 @@ fn main() {
         Path::new("assets/table_04.csv"),
     );
 
-    println!("{}", context);
-    println!("{}", context.deterministic_decision(2));
+    let probabilities = EvaluatedProbabilities::eval(context);
+
+    println!("{probabilities}");
 }
