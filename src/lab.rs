@@ -106,3 +106,20 @@ impl Display for EvaluatedProbabilities {
         Ok(())
     }
 }
+
+pub fn deterministic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<u32, 1, 20> {
+    let mut res = Matrix::default();
+
+    for i in 0..20 {
+        res[i] = ctx
+            .m_if_c_probabilities
+            .iter()
+            .map(|x| x[i])
+            .enumerate()
+            .max_by(|a, b| a.1.total_cmp(&b.1))
+            .map(|x| x.0 as u32)
+            .unwrap();
+    }
+
+    res
+}

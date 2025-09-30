@@ -1,13 +1,30 @@
 use core::fmt;
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, Deref, Index},
+    ops::{Add, Deref, DerefMut, Index, IndexMut},
 };
 
 use anyhow::bail;
 
 #[derive(Debug)]
 pub struct Matrix<T, const R: usize, const C: usize>([[T; C]; R]);
+
+impl<T, const R: usize, const C: usize> Matrix<T, R, C>
+where
+    T: Default + Copy,
+{
+    pub fn transpose(self) -> Matrix<T, C, R> {
+        let mut m = Matrix::default();
+
+        for (i, row) in self.0.into_iter().enumerate() {
+            for (j, element) in row.into_iter().enumerate() {
+                m.0[j][i] = element;
+            }
+        }
+
+        m
+    }
+}
 
 impl<T, const R: usize, const C: usize> Matrix<T, R, C>
 where
@@ -37,10 +54,12 @@ where
 
 impl<T, const R: usize, const C: usize> Default for Matrix<T, R, C>
 where
-    T: Default + Clone + Copy,
+    T: Default,
 {
     fn default() -> Self {
-        Self([[T::default(); C]; R])
+        Self(std::array::from_fn(|_| {
+            std::array::from_fn(|_| T::default())
+        }))
     }
 }
 
@@ -77,6 +96,18 @@ impl<T, const C: usize> Index<usize> for Matrix<T, 1, C> {
     }
 }
 
+impl<T, const C: usize> IndexMut<usize> for Matrix<T, 1, C> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[0][index]
+    }
+}
+
+impl<T, const R: usize, const C: usize> IndexMut<(usize, usize)> for Matrix<T, R, C> {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        &mut self.0[index.0][index.1]
+    }
+}
+
 impl<T, const R: usize, const C: usize> From<[[T; C]; R]> for Matrix<T, R, C> {
     fn from(value: [[T; C]; R]) -> Self {
         Self(value)
@@ -94,6 +125,12 @@ impl<T, const R: usize, const C: usize> Deref for Matrix<T, R, C> {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl<T, const R: usize, const C: usize> DerefMut for Matrix<T, R, C> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
