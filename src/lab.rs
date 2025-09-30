@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Deref, path::Path, u32};
+use std::{fmt::Display, ops::Deref, path::Path};
 
 use crate::util::Matrix;
 
@@ -97,11 +97,11 @@ impl EvaluatedProbabilities {
 
 impl Display for EvaluatedProbabilities {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Context:\n{}", self.context);
+        writeln!(f, "Context:\n{}", self.context)?;
 
-        writeln!(f, "P(C):\n{}", self.ciphertexts_probabilities);
-        writeln!(f, "P(M, C):\n{}", self.m_and_c_probabilities);
-        writeln!(f, "P(M | C):\n{}", self.m_if_c_probabilities);
+        writeln!(f, "P(C):\n{}", self.ciphertexts_probabilities)?;
+        writeln!(f, "P(M, C):\n{}", self.m_and_c_probabilities)?;
+        writeln!(f, "P(M | C):\n{}", self.m_if_c_probabilities)?;
 
         Ok(())
     }
