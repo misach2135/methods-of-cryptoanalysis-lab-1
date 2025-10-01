@@ -151,9 +151,9 @@ impl DecisionFunction for DeterministicDecision {
 
     fn loss(&self, m: u32, c: u32) -> f64 {
         if self.decision[c as usize] == m {
-            1.0
-        } else {
             0.0
+        } else {
+            1.0
         }
     }
 }
