@@ -111,47 +111,99 @@ impl Display for EvaluatedProbabilities {
     }
 }
 
-pub fn deterministic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<u32, 1, 20> {
-    let mut res = Matrix::default();
+pub trait DecisionFunction {
+    type Decision;
 
-    for i in 0..20 {
-        res[i] = ctx
-            .m_if_c_probabilities
+    fn get_decision(&self) -> &Self::Decision;
+
+    fn loss(&self, m: u32, c: u32) -> f64;
+}
+
+pub struct DeterministicDecision {
+    decision: Matrix<u32, 1, 20>,
+}
+
+impl DeterministicDecision {
+    pub fn evaluate(ctx: &EvaluatedProbabilities) -> Self {
+        let mut res = Matrix::default();
+
+        for i in 0..20 {
+            res[i] = ctx
+                .m_if_c_probabilities
+                .iter()
+                .map(|x| x[i])
+                .enumerate()
+                .max_by(|a, b| a.1.total_cmp(&b.1))
+                .map(|x| x.0 as u32)
+                .unwrap();
+        }
+
+        Self { decision: res }
+    }
+}
+
+impl DecisionFunction for DeterministicDecision {
+    type Decision = Matrix<u32, 1, 20>;
+
+    fn get_decision(&self) -> &Self::Decision {
+        &self.decision
+    }
+
+    fn loss(&self, m: u32, c: u32) -> f64 {
+        if self.decision[c as usize] == m {
+            1.0
+        } else {
+            0.0
+        }
+    }
+}
+
+pub struct StochasticDecision {
+    decision: Matrix<f64, 20, 20>,
+}
+
+impl StochasticDecision {
+    pub fn evaluate(ctx: &EvaluatedProbabilities) -> Self {
+        // For every C define sequence P(M_i | C)
+        let mut res = ctx.m_if_c_probabilities.clone().transpose();
+
+        for row in res.deref_mut() {
+            let max_val = row.iter().max_by(|a, b| a.total_cmp(b)).unwrap().clone();
+            let max_val_count = row.iter().filter(|x| **x == max_val).count();
+            let p = 1.0f64 / (max_val_count as f64);
+
+            row.iter_mut()
+                .for_each(move |x| if *x == max_val { *x = p } else { *x = 0f64 })
+        }
+
+        Self { decision: res }
+    }
+}
+
+impl DecisionFunction for StochasticDecision {
+    type Decision = Matrix<f64, 20, 20>;
+
+    fn get_decision(&self) -> &Self::Decision {
+        &self.decision
+    }
+
+    fn loss(&self, m: u32, c: u32) -> f64 {
+        self.decision.deref()[c as usize]
             .iter()
-            .map(|x| x[i])
             .enumerate()
-            .max_by(|a, b| a.1.total_cmp(&b.1))
-            .map(|x| x.0 as u32)
-            .unwrap();
+            .filter_map(|(i, x)| if (i as u32) == m { None } else { Some(*x) })
+            .sum()
+    }
+}
+
+pub fn average_loss(ctx: &EvaluatedProbabilities, df: &impl DecisionFunction) -> f64 {
+    let mut avg = 0.0;
+
+    for (m, row) in ctx.m_and_c_probabilities.deref().iter().enumerate() {
+        for (c, p) in row.iter().enumerate() {
+            avg += p * df.loss(m as u32, c as u32);
+        }
     }
 
-    res
-}
-
-pub fn stochastic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<f64, 20, 20> {
-    // For every C define sequence P(M_i | C)
-    let mut res = ctx.m_if_c_probabilities.clone().transpose();
-
-    for row in res.deref_mut() {
-        let max_val = row.iter().max_by(|a, b| a.total_cmp(b)).unwrap().clone();
-        let max_val_count = row.iter().filter(|x| **x == max_val).count();
-        let p = 1.0f64 / (max_val_count as f64);
-
-        row.iter_mut()
-            .for_each(move |x| if *x == max_val { *x = p } else { *x = 0f64 })
-    }
-
-    res
-}
-
-pub fn ddf_loss(ddf: &Matrix<u32, 1, 20>, m: u32, c: u32) -> f64 {
-    unimplemented!()
-}
-
-pub fn sdf_loss(sdf: &Matrix<f64, 20, 20>, m: u32, c: u32) -> f64 {
-    unimplemented!()
-}
-
-pub fn average_loss(ctx: &EvaluatedProbabilities) -> f64 {
-    unimplemented!()
+    avg
 }

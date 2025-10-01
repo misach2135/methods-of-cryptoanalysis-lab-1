@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use crate::lab::{
-    EvaluatedProbabilities, LabContext, deterministic_decision_matrix, stochastic_decision_matrix,
+    DecisionFunction, DeterministicDecision, EvaluatedProbabilities, LabContext,
+    StochasticDecision, average_loss,
 };
 
 mod lab;
@@ -16,13 +17,20 @@ fn main() {
     let probabilities = EvaluatedProbabilities::eval(context);
 
     println!("{probabilities}");
+
+    let ddf = DeterministicDecision::evaluate(&probabilities);
+    let sdf = StochasticDecision::evaluate(&probabilities);
+
     println!(
         "Deletrminisic decision function matrix:\n{}",
-        deterministic_decision_matrix(&probabilities)
+        ddf.get_decision()
     );
 
     println!(
         "Stochastic decision function matrix:\n{}",
-        stochastic_decision_matrix(&probabilities)
+        sdf.get_decision()
     );
+
+    println!("Average DDF loss: {}", average_loss(&probabilities, &ddf));
+    println!("Average SDF loss: {}", average_loss(&probabilities, &sdf));
 }
