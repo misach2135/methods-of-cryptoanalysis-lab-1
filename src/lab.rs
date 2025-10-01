@@ -123,3 +123,9 @@ pub fn deterministic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<u32
 
     res
 }
+
+pub fn stochastic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<f64, 20, 20> {
+    let mut res = Matrix::default();
+
+    res
+}
