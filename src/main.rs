@@ -1,6 +1,8 @@
 use std::path::Path;
 
-use crate::lab::{EvaluatedProbabilities, LabContext, deterministic_decision_matrix};
+use crate::lab::{
+    EvaluatedProbabilities, LabContext, deterministic_decision_matrix, stochastic_decision_matrix,
+};
 
 mod lab;
 mod util;
@@ -17,5 +19,10 @@ fn main() {
     println!(
         "Deletrminisic decision function matrix:\n{}",
         deterministic_decision_matrix(&probabilities)
+    );
+
+    println!(
+        "Stochastic decision function matrix:\n{}",
+        stochastic_decision_matrix(&probabilities)
     );
 }

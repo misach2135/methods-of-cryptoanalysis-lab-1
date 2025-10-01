@@ -1,4 +1,8 @@
-use std::{fmt::Display, ops::Deref, path::Path};
+use std::{
+    fmt::Display,
+    ops::{Deref, DerefMut},
+    path::Path,
+};
 
 use crate::util::Matrix;
 
@@ -125,7 +129,17 @@ pub fn deterministic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<u32
 }
 
 pub fn stochastic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<f64, 20, 20> {
-    let mut res = Matrix::default();
+    // For every C define sequence P(M_i | C)
+    let mut res = ctx.m_if_c_probabilities.clone().transpose();
+
+    for row in res.deref_mut() {
+        let max_val = row.iter().max_by(|a, b| a.total_cmp(b)).unwrap().clone();
+        let max_val_count = row.iter().filter(|x| **x == max_val).count();
+        let p = 1.0f64 / (max_val_count as f64);
+
+        row.iter_mut()
+            .for_each(move |x| if *x == max_val { *x = p } else { *x = 0f64 })
+    }
 
     res
 }

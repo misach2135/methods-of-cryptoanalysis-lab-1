@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::bail;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Matrix<T, const R: usize, const C: usize>([[T; C]; R]);
 
 impl<T, const R: usize, const C: usize> Matrix<T, R, C>
