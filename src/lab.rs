@@ -168,7 +168,7 @@ impl StochasticDecision {
         let mut res = ctx.m_if_c_probabilities.clone().transpose();
 
         for row in res.deref_mut() {
-            let max_val = row.iter().max_by(|a, b| a.total_cmp(b)).unwrap().clone();
+            let max_val = *row.iter().max_by(|a, b| a.total_cmp(b)).unwrap();
             let max_val_count = row.iter().filter(|x| **x == max_val).count();
             let p = 1.0f64 / (max_val_count as f64);
 

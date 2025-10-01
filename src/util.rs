@@ -139,49 +139,27 @@ where
     T: Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let cell_width = 8;
-
-        writeln!(
-            f,
-            "┌{}┐",
-            (0..C)
-                .map(|_| "─".repeat(cell_width))
-                .collect::<Vec<_>>()
-                .join("┬")
-        )?;
+        let cell_width = 7;
 
         for r in 0..R {
-            write!(f, "│")?;
             for c in 0..C {
-                write!(
-                    f,
-                    "{:^width$}│",
-                    format!("{:.4}", self.0[r][c]),
-                    width = cell_width
-                )?;
+                write!(f, "{:.4}", self.0[r][c])?;
+                if c < C - 1 {
+                    write!(f, ", ")?;
+                }
             }
-            writeln!(f)?;
 
-            if r < R - 1 {
-                writeln!(
-                    f,
-                    "├{}┤",
-                    (0..C)
-                        .map(|_| "─".repeat(cell_width))
-                        .collect::<Vec<_>>()
-                        .join("┼")
-                )?;
-            }
+            writeln!(f)?;
         }
 
-        writeln!(
-            f,
-            "└{}┘",
-            (0..C)
-                .map(|_| "─".repeat(cell_width))
-                .collect::<Vec<_>>()
-                .join("┴")
-        )?;
+        // writeln!(
+        //     f,
+        //     "└{}┘",
+        //     (0..C)
+        //         .map(|_| "─".repeat(cell_width))
+        //         .collect::<Vec<_>>()
+        //         .join("┴")
+        // )?;
 
         Ok(())
     }
