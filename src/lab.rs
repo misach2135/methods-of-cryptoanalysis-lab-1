@@ -143,3 +143,15 @@ pub fn stochastic_decision_matrix(ctx: &EvaluatedProbabilities) -> Matrix<f64, 2
 
     res
 }
+
+pub fn ddf_loss(ddf: &Matrix<u32, 1, 20>, m: u32, c: u32) -> f64 {
+    unimplemented!()
+}
+
+pub fn sdf_loss(sdf: &Matrix<f64, 20, 20>, m: u32, c: u32) -> f64 {
+    unimplemented!()
+}
+
+pub fn average_loss(ctx: &EvaluatedProbabilities) -> f64 {
+    unimplemented!()
+}
