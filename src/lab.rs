@@ -97,6 +97,22 @@ impl EvaluatedProbabilities {
             m_if_c_probabilities: m_if_c_probabilities.into(),
         }
     }
+
+    pub fn get_context(&self) -> &LabContext {
+        &self.context
+    }
+
+    pub fn get_ciphertexts_probabilities(&self) -> &Matrix<f64, 1, 20> {
+        &self.ciphertexts_probabilities
+    }
+
+    pub fn get_m_and_c_probabilities(&self) -> &Matrix<f64, 20, 20> {
+        &self.m_and_c_probabilities
+    }
+
+    pub fn get_m_if_c_probabilities(&self) -> &Matrix<f64, 20, 20> {
+        &self.m_if_c_probabilities
+    }
 }
 
 impl Display for EvaluatedProbabilities {
