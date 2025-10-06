@@ -139,27 +139,16 @@ where
     T: Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let cell_width = 7;
-
         for r in 0..R {
             for c in 0..C {
                 write!(f, "{:.4}", self.0[r][c])?;
                 if c < C - 1 {
-                    write!(f, ", ")?;
+                    write!(f, ",")?;
                 }
             }
 
             writeln!(f)?;
         }
-
-        // writeln!(
-        //     f,
-        //     "└{}┘",
-        //     (0..C)
-        //         .map(|_| "─".repeat(cell_width))
-        //         .collect::<Vec<_>>()
-        //         .join("┴")
-        // )?;
 
         Ok(())
     }

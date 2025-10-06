@@ -1,7 +1,6 @@
 use std::{
     fs::{DirBuilder, File},
     io::Write,
-    ops::Deref,
     path::Path,
 };
 
